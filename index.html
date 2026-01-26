@@ -16,13 +16,27 @@
           Roboto,
           Arial,
           sans-serif;
-        margin: 24px;
+        margin: 0;
+        padding: 24px;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.86)),
+          url("https://www.cens.com.co/Portals/cens/EasyDNNNews/11/images/Banner-acceso-conexion-servicio-energia-1-600-400-p-L-97.jpg");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
       }
       .card {
         max-width: 680px;
+        width: min(680px, 100%);
         padding: 16px 18px;
         border: 1px solid #e5e7eb;
         border-radius: 12px;
+        background: rgba(255, 255, 255, 0.92);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
       }
       h1 {
         font-size: 18px;
@@ -68,6 +82,26 @@
       .detail {
         margin-top: 6px;
       }
+      .status {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-weight: 800;
+        font-size: 12px;
+        letter-spacing: 0.2px;
+        border: 1px solid transparent;
+      }
+      .status--ok {
+        color: #065f46;
+        background: #ecfdf5;
+        border-color: #a7f3d0;
+      }
+      .status--warn {
+        color: #991b1b;
+        background: #fef2f2;
+        border-color: #fecaca;
+      }
       .error {
         color: #b91c1c;
         font-weight: 700;
@@ -82,11 +116,9 @@
   </head>
   <body>
     <div class="card">
-      <h1>Porcentaje de pérdida (según tu fórmula)</h1>
-      <p>
-        Fórmula:
-        <span class="formula">perdida% = (consumida / entregada) × 100</span>
-      </p>
+      <h1>Porcentaje de pérdida</h1>
+      <p class="muted">Ingresa los valores en kWh para calcular.</p>
+      <!-- Fórmula: <span class="formula">perdida% = (consumida / entregada) × 100</span> -->
 
       <div class="grid">
         <label>
@@ -120,6 +152,7 @@
         <div class="muted">Resultado</div>
         <div id="salida" class="value">—</div>
         <div id="detalle" class="muted detail"></div>
+        <div id="estado" class="status" aria-live="polite"></div>
       </div>
     </div>
 
@@ -128,6 +161,9 @@
       const consumidaInput = document.getElementById("consumida");
       const salida = document.getElementById("salida");
       const detalle = document.getElementById("detalle");
+      const estado = document.getElementById("estado");
+
+      const UMBRAL_REVISION_PRIORITARIA = 15;
 
       function parseNumber(value) {
         // Soporta decimales con coma o punto
@@ -146,6 +182,8 @@
 
         detalle.textContent = "";
         salida.classList.remove("error");
+        estado.textContent = "";
+        estado.classList.remove("status--ok", "status--warn");
 
         if (!Number.isFinite(entregada) || !Number.isFinite(consumida)) {
           salida.textContent = "—";
@@ -161,6 +199,14 @@
         const perdidaPct = (consumida / entregada) * 100;
         salida.textContent = formatPercent(perdidaPct);
         detalle.textContent = `Consumida: ${consumida} kWh | Entregada: ${entregada} kWh`;
+
+        if (perdidaPct > UMBRAL_REVISION_PRIORITARIA) {
+          estado.textContent = "Revisión prioritaria";
+          estado.classList.add("status--warn");
+        } else {
+          estado.textContent = "Normal";
+          estado.classList.add("status--ok");
+        }
       }
 
       entregadaInput.addEventListener("input", recalcular);
