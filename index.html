@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cálculo de pérdida (%)</title>
+    <style>
+      :root {
+        color-scheme: light;
+      }
+      body {
+        font-family:
+          system-ui,
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          Arial,
+          sans-serif;
+        margin: 24px;
+      }
+      .card {
+        max-width: 680px;
+        padding: 16px 18px;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+      }
+      h1 {
+        font-size: 18px;
+        margin: 0 0 12px;
+      }
+      p {
+        margin: 8px 0;
+        color: #374151;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-top: 12px;
+      }
+      label {
+        display: grid;
+        gap: 6px;
+        font-weight: 600;
+      }
+      input {
+        padding: 10px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 10px;
+        font-size: 14px;
+      }
+      .result {
+        margin-top: 14px;
+        padding: 12px;
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+      }
+      .muted {
+        color: #6b7280;
+        font-weight: 500;
+      }
+      .value {
+        font-size: 20px;
+        font-weight: 800;
+        margin-top: 6px;
+      }
+      .detail {
+        margin-top: 6px;
+      }
+      .error {
+        color: #b91c1c;
+        font-weight: 700;
+      }
+      .formula {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        background: #f3f4f6;
+        padding: 2px 6px;
+        border-radius: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>Porcentaje de pérdida (según tu fórmula)</h1>
+      <p>
+        Fórmula:
+        <span class="formula">perdida% = (consumida / entregada) × 100</span>
+      </p>
+
+      <div class="grid">
+        <label>
+          1) Energía total del transformador (kWh)
+          <span class="muted">(Entregada)</span>
+          <input
+            id="entregada"
+            type="number"
+            inputmode="decimal"
+            step="any"
+            min="0"
+            placeholder="Ej: 1500"
+          />
+        </label>
+
+        <label>
+          2) Suma de consumo de los clientes (kWh)
+          <span class="muted">(Consumida)</span>
+          <input
+            id="consumida"
+            type="number"
+            inputmode="decimal"
+            step="any"
+            min="0"
+            placeholder="Ej: 1380"
+          />
+        </label>
+      </div>
+
+      <div class="result" aria-live="polite">
+        <div class="muted">Resultado</div>
+        <div id="salida" class="value">—</div>
+        <div id="detalle" class="muted detail"></div>
+      </div>
+    </div>
+
+    <script>
+      const entregadaInput = document.getElementById("entregada");
+      const consumidaInput = document.getElementById("consumida");
+      const salida = document.getElementById("salida");
+      const detalle = document.getElementById("detalle");
+
+      function parseNumber(value) {
+        // Soporta decimales con coma o punto
+        if (typeof value !== "string") return NaN;
+        const normalized = value.replace(",", ".");
+        return Number(normalized);
+      }
+
+      function formatPercent(value) {
+        return `${value.toFixed(2)} %`;
+      }
+
+      function recalcular() {
+        const entregada = parseNumber(entregadaInput.value);
+        const consumida = parseNumber(consumidaInput.value);
+
+        detalle.textContent = "";
+        salida.classList.remove("error");
+
+        if (!Number.isFinite(entregada) || !Number.isFinite(consumida)) {
+          salida.textContent = "—";
+          return;
+        }
+
+        if (entregada <= 0) {
+          salida.textContent = "Entregada debe ser > 0";
+          salida.classList.add("error");
+          return;
+        }
+
+        const perdidaPct = (consumida / entregada) * 100;
+        salida.textContent = formatPercent(perdidaPct);
+        detalle.textContent = `Consumida: ${consumida} kWh | Entregada: ${entregada} kWh`;
+      }
+
+      entregadaInput.addEventListener("input", recalcular);
+      consumidaInput.addEventListener("input", recalcular);
+      recalcular();
+    </script>
+  </body>
+</html>
