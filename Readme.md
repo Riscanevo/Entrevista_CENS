@@ -1,4 +1,4 @@
-# Entrevista CENS — Calculadora de pérdida (%)
+# Entrevista de Centrales - CENS — Calculadora de pérdida (%)
 
 Pequeña página web (HTML + CSS + JavaScript) para calcular el porcentaje de pérdida con base en:
 
